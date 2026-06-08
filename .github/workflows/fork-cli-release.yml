@@ -1,0 +1,58 @@
+name: Fork CLI Release
+
+on:
+  push:
+    tags:
+      - '4.*-phonepe.*'
+
+permissions:
+  contents: write
+
+env:
+  MISE_VERSION: "2026.4.18"
+  MISE_GITHUB_TOKEN: ${{ github.token }}
+  MISE_GITHUB_ATTESTATIONS: 0
+
+jobs:
+  release-cli:
+    name: Release unsigned CLI bundle
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode_$(cat .xcode-version-releases).app
+
+      - uses: jdx/mise-action@v4.0.1
+        with:
+          version: ${{ env.MISE_VERSION }}
+          install_args: "tuist"
+          cache: "false"
+          github_token: ${{ env.MISE_GITHUB_TOKEN }}
+
+      - name: Build unsigned CLI bundle
+        run: bash ./mise/tasks/cli/bundle-unsigned.sh
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          repository: ${{ github.repository }}
+          name: CLI ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          body: |
+            Unsigned fork build of Tuist for CI consumption via mise.
+
+            Use in mise.toml:
+            ```toml
+            [tools]
+            "github:${{ github.repository }}" = { version = "${{ github.ref_name }}", version_prefix = "", asset_pattern = "tuist.zip" }
+            ```
+          files: |
+            build/tuist.zip
+            build/tuist.spec.json
+            build/SHASUMS256.txt
+            build/SHASUMS512.txt
