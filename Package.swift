@@ -1066,6 +1066,16 @@ var targets: [Target] = [
         ],
         path: "cli/Tests/TuistAndroidTests"
     ),
+    .testTarget(
+        name: "tuistTests",
+        dependencies: [
+            "tuist",
+            fileSystemDependency,
+            .product(name: "FileSystemTesting", package: "tuist.FileSystem"),
+            pathDependency,
+        ],
+        path: "cli/Tests/tuistTests"
+    ),
 ]
 
 // MARK: - Cross-platform targets (outside macOS gate)
