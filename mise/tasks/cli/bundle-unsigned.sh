@@ -21,6 +21,9 @@ rm -rf "$PROJECT_ROOT/Tuist.xcworkspace"
 rm -rf "$BUILD_DIRECTORY"
 mkdir -p "$BUILD_DIRECTORY"
 
+echo "$(format_subsection "Installing Tuist dependencies")"
+tuist install --path "$PROJECT_ROOT"
+
 echo "$(format_subsection "Generating Xcode project")"
 TUIST_FORCE_STATIC_LINKING=1 tuist generate --no-binary-cache --path "$PROJECT_ROOT" --no-open
 
