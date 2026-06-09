@@ -135,8 +135,9 @@ func initNoora(jsonThroughNoora: Bool = false) -> Noora {
         var loggerHandler: (@Sendable (String) -> any LogHandler)? = nil
 
         do {
-            let fileSystem = FileSystem()
-            try await fileSystem.touch(logFilePath)
+            if !FileManager.default.fileExists(atPath: logFilePath.pathString) {
+                FileManager.default.createFile(atPath: logFilePath.pathString, contents: nil)
+            }
             loggerHandler = try Logger.loggerHandlerForNoora(logFilePath: logFilePath)
         } catch {
             loggerHandler = nil
