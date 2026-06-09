@@ -54,7 +54,10 @@ xcrun xcodebuild \
     ONLY_ACTIVE_ARCH=NO \
     clean build
 rsync -a "$DERIVED_DATA_PATH/Build/Products/Release/ProjectDescription.framework" "$BUILD_DIRECTORY/"
-rsync -a "$DERIVED_DATA_PATH/Build/Products/Release/ProjectDescription.framework.dSYM" "$BUILD_DIRECTORY/"
+DSYM_PATH="$DERIVED_DATA_PATH/Build/Products/Release/ProjectDescription.framework.dSYM"
+if [ -d "$DSYM_PATH" ]; then
+    rsync -a "$DSYM_PATH" "$BUILD_DIRECTORY/"
+fi
 
 echo "$(format_subsection "Copying templates")"
 cp -r "$PROJECT_ROOT/cli/Templates" "$BUILD_DIRECTORY/Templates"
@@ -66,7 +69,9 @@ mkdir -p "$SPEC_TMP_DIR"
 echo "$(format_subsection "Bundling tuist.zip")"
 (
     cd "$BUILD_DIRECTORY"
-    zip -q -r --symlinks tuist.zip tuist ProjectDescription.framework ProjectDescription.framework.dSYM Templates
+    ZIP_EXTRAS=""
+    [ -d "ProjectDescription.framework.dSYM" ] && ZIP_EXTRAS="ProjectDescription.framework.dSYM"
+    zip -q -r --symlinks tuist.zip tuist ProjectDescription.framework $ZIP_EXTRAS Templates
 
     : > SHASUMS256.txt
     : > SHASUMS512.txt
