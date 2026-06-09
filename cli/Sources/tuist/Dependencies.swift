@@ -132,7 +132,7 @@ func initNoora(jsonThroughNoora: Bool = false) -> Noora {
     }
 
     func withLoggerForNoora(logFilePath: AbsolutePath, _ action: () async throws -> Void) async throws {
-        let loggerHandler = (@Sendable (String) -> any LogHandler)?
+        var loggerHandler: (@Sendable (String) -> any LogHandler)? = nil
 
         do {
             let fileSystem = FileSystem()
